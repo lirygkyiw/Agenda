@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Work Scheduler</title>
+  <style>
+* {
+  box-sizing: border-box;
+}
+
+ body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f7f7f7;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .schedule-header {
+      background-color: #3f51b5;
+      color: white;
+      padding: 10px;
+      border-radius: 6px 6px 0 0;
+      text-align: center;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 1fr repeat(6, 1fr);
+      gap: 5px;
+      background-color: white;
+      padding: 10px;
+      border-radius: 0 0 6px 6px;
+      border: 1px solid #ccc;
+    }
+
+    .time-box {
+      font-weight: bold;
+      text-align: center;
+      padding: 10px;
+      background-color: #e0e0e0;
+    }
+
+    .day-box {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 100px;
+    }
+
+    .day-box[data-shift="Morning"] {
+      background-color: #e6f4ea;
+    }
+
+    .day-box[data-shift="Afternoon"] {
+      background-color: #e3f2fd;
+    }
+
+    .day-box[data-shift="Evening"] {
+      background-color: #f3e5f5;
+    }
+
+    .assignment {
+      margin: 3px 0;
+      background-color: #ffffff;
+      padding: 3px 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      position: relative;
+      cursor: pointer;
+      border-left: 4px solid #3f51b5;
+      font-size: 0.9em;
+    }
+
+    .assignment .remove {
+      position: absolute;
+      top: 2px;
+      right: 5px;
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .panel {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      flex: 1;
+      min-width: 300px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 6px 12px;
+      margin-top: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #3f51b5;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      width: auto;
+      min-width: 120px;
+      max-width: 100%;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+
+    #generate-schedule {
+      background-color: #4caf50;
+      border-color: #4caf50;
+    }
+
+    #generate-schedule:hover {
+      background-color: #388e3c;
+    }
+
+    .green-box {
+      background-color: #e6f4ea;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .availability-table {
+      width: 100%;
+      margin-top: 10px;
+      border-collapse: collapse;
+    }
+
+    .availability-table th, .availability-table td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+    }
+
+    .staff-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .delete-btn {
+      color: red;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+<h1>Work Scheduler</h1>
+
+<div class="schedule-header">Schedule</div>
+<div class="schedule-grid" id="schedule-grid">
+  <div class="time-box">Time</div>
+  <div class="time-box">Monday</div>
+  <div class="time-box">Tuesday</div>
+  <div class="time-box">Wednesday</div>
+  <div class="time-box">Thursday</div>
+  <div class="time-box">Friday</div>
+  <div class="time-box">Saturday</div>
+
+  <!-- Time rows -->
+  <div class="time-box">Morning <br> (08:00 t/m 13:00)</div>
+  <div class="day-box" data-day="Monday" data-shift="Morning"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Tuesday" data-shift="Morning"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Wednesday" data-shift="Morning"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Thursday" data-shift="Morning"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Friday" data-shift="Morning"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Saturday" data-shift="Morning"><div class="assignments"></div></div>
+
+  <div class="time-box">Afternoon <br> (13:00 t/m 17:00)</div>
+  <div class="day-box" data-day="Monday" data-shift="Afternoon"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Tuesday" data-shift="Afternoon"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Wednesday" data-shift="Afternoon"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Thursday" data-shift="Afternoon"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Friday" data-shift="Afternoon"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Saturday" data-shift="Afternoon"><div class="assignments"></div></div>
+
+  <div class="time-box">Evening <br> (17:00 t/m 20-21:00)</div>
+  <div class="day-box" data-day="Monday" data-shift="Evening"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Tuesday" data-shift="Evening"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Wednesday" data-shift="Evening"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Thursday" data-shift="Evening"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Friday" data-shift="Evening"><div class="assignments"></div></div>
+  <div class="day-box" data-day="Saturday" data-shift="Evening"><div class="assignments"></div></div>
+</div>
+
+<div class="container">
+  <div class="panel">
+    <h3>Staff Management</h3>
+    <label for="staff-name">Name:</label>
+    <input type="text" id="staff-name" />
+    <button id="add-staff">Add Staff Member</button>
+
+    <label>Staff List:</label>
+    <div id="staff-list">No staff members added.</div>
+
+    <label for="staff-select">Set Staff Availability</label>
+    <select id="staff-select"><option>-- Select Staff Member --</option></select>
+
+    <table class="availability-table">
+      <thead>
+        <tr>
+          <th>Day</th><th>Morning</th><th>Afternoon</th><th>Evening</th>
+        </tr>
+      </thead>
+      <tbody id="availability-table"></tbody>
+    </table>
+    <button id="save-availability">Save Availability</button>
+  </div>
+
+  <div class="panel">
+    <h3>Shift Schedule</h3>
+    <div class="green-box">
+      <button id="generate-schedule">Generate Schedule</button>
+      <p>Automatically assigns staff to shifts based on availability.</p>
+    </div>
+
+    <label>Manually Assign Staff</label>
+    <select id="manual-day">
+      <option>-- Select Day --</option>
+      <option>Monday</option><option>Tuesday</option><option>Wednesday</option>
+      <option>Thursday</option><option>Friday</option><option>Saturday</option>
+    </select>
+
+    <select id="manual-shift">
+      <option>-- Select Shift --</option>
+      <option>Morning</option><option>Afternoon</option><option>Evening</option>
+    </select>
+
+    <select id="manual-staff"><option>-- Select Staff Member --</option></select>
+    <textarea id="manual-notes" placeholder="Optional notes..."></textarea>
+    <button id="assign-manual">Assign Shift</button>
+  </div>
+</div>
+
+<script>
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const shifts = ["Morning", "Afternoon", "Evening"];
+let staffData = JSON.parse(localStorage.getItem("staffData")) || {};
+
+const staffListEl = document.getElementById("staff-list");
+const staffSelect = document.getElementById("staff-select");
+const manualStaff = document.getElementById("manual-staff");
+const availabilityTable = document.getElementById("availability-table");
+const scheduleGrid = document.getElementById("schedule-grid");
+
+function saveData() {
+  localStorage.setItem("staffData", JSON.stringify(staffData));
+}
+
+function updateStaffList() {
+  const names = Object.keys(staffData);
+  staffListEl.innerHTML = names.length ? names.map(name =>
+    `<div class="staff-item">${name}<span class="delete-btn" onclick="deleteStaff('${name}')">✖</span></div>`
+  ).join("") : "No staff members added.";
+
+  [staffSelect, manualStaff].forEach(select => {
+    select.innerHTML = `<option>-- Select Staff Member --</option>` +
+      names.map(n => `<option value="${n}">${n}</option>`).join("");
+  });
+}
+
+function createAvailabilityTable() {
+  availabilityTable.innerHTML = "";
+  for (const day of days) {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${day}</td>` + shifts.map(shift =>
+      `<td><input type="checkbox" data-day="${day}" data-shift="${shift}"></td>`
+    ).join("");
+    availabilityTable.appendChild(row);
+  }
+}
+
+function fillAvailability(name) {
+  createAvailabilityTable();
+  if (!staffData[name]) return;
+  document.querySelectorAll("#availability-table input").forEach(cb => {
+    const { day, shift } = cb.dataset;
+    cb.checked = staffData[name]?.[day]?.[shift] || false;
+  });
+}
+
+function deleteStaff(name) {
+  if (confirm(`Are you sure you want to remove ${name}?`)) {
+    delete staffData[name];
+    saveData();
+    updateStaffList();
+  }
+}
+
+function removeAssignment(el) {
+  el.remove();
+}
+
+function editNote(div) {
+  const current = div.getAttribute("data-note") || "";
+  const note = prompt("Edit note:", current);
+  if (note !== null) {
+    div.setAttribute("data-note", note);
+    const content = div.textContent.replace(/✖/, "").trim().split("(")[0].trim();
+    div.innerHTML = `${content} ${note ? "(" + note + ")" : ""} <span class="remove" onclick="removeAssignment(this.parentElement)">✖</span>`;
+    div.onclick = (e) => {
+      if (e.target.classList.contains("remove")) return;
+      editNote(div);
+    };
+  }
+}
+
+document.getElementById("add-staff").onclick = () => {
+  const name = document.getElementById("staff-name").value.trim();
+  if (!name || staffData[name]) return;
+  staffData[name] = {};
+  saveData();
+  updateStaffList();
+  document.getElementById("staff-name").value = "";
+};
+
+staffSelect.onchange = () => fillAvailability(staffSelect.value);
+
+document.getElementById("save-availability").onclick = () => {
+  const name = staffSelect.value;
+  if (!staffData[name]) return alert("Select a valid staff member.");
+  const avail = {};
+  document.querySelectorAll("#availability-table input").forEach(cb => {
+    const { day, shift } = cb.dataset;
+    if (!avail[day]) avail[day] = {};
+    avail[day][shift] = cb.checked;
+  });
+  staffData[name] = avail;
+  saveData();
+  alert("Availability saved!");
+};
+
+document.getElementById("generate-schedule").onclick = () => {
+  scheduleGrid.querySelectorAll(".assignments").forEach(el => el.innerHTML = "");
+  for (const day of days) {
+    for (const shift of shifts) {
+      const available = Object.entries(staffData).filter(([name, avail]) => avail?.[day]?.[shift]);
+      for (const [name] of available) {
+        const box = scheduleGrid.querySelector(`.day-box[data-day="${day}"][data-shift="${shift}"] .assignments`);
+        const div = document.createElement("div");
+        div.className = "assignment";
+        div.setAttribute("data-note", "");
+        div.innerHTML = `${shift}: ${name} <span class="remove" onclick="removeAssignment(this.parentElement)">✖</span>`;
+        div.onclick = (e) => {
+          if (e.target.classList.contains("remove")) return;
+          editNote(div);
+        };
+        box.appendChild(div);
+      }
+    }
+  }
+};
+
+document.getElementById("assign-manual").onclick = () => {
+  const day = document.getElementById("manual-day").value;
+  const shift = document.getElementById("manual-shift").value;
+  const name = document.getElementById("manual-staff").value;
+  const notes = document.getElementById("manual-notes").value;
+  if (!day || !shift || !name || name.startsWith("--")) return alert("Fill all fields.");
+
+  const box = scheduleGrid.querySelector(`.day-box[data-day="${day}"][data-shift="${shift}"] .assignments`);
+  const div = document.createElement("div");
+  div.className = "assignment";
+  div.setAttribute("data-note", notes);
+  div.innerHTML = `${shift}: ${name} ${notes ? "(" + notes + ")" : ""} <span class="remove" onclick="removeAssignment(this.parentElement)">✖</span>`;
+  div.onclick = (e) => {
+    if (e.target.classList.contains("remove")) return;
+    editNote(div);
+  };
+  box.appendChild(div);
+  document.getElementById("manual-notes").value = "";
+};
+
+createAvailabilityTable();
+updateStaffList();
+</script>
+
+</body>
+</html>
